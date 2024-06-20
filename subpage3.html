@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POSTY</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #fff5e0;
+    }
+    #canvas-container {
+        margin-right: 20px;
+        width: 500px;
+        height: 600px;
+        border: 0.5px solid #000;
+        position: relative;
+        background-color: rgb(255, 255, 255);
+        display: block;
+        border-radius: 20px;
+    }
+
+
+    #grid-wrapper {
+        margin-right: 80px;
+    }
+    #grid-container {
+        display: grid;
+        margin-top: 10px;
+        grid-template-columns: repeat(4, 100px);
+        grid-template-rows: repeat(4, 100px);
+        gap: 30px;
+    }
+    .grid-cell {
+        width: 100px;
+        height: 100px;
+        border: 0px solid #000;
+    }
+    .grid-image {
+        width: 90%;
+        height: 90%;
+        object-fit: cover;
+    }
+    .draggable {
+        cursor: move;
+    }
+
+    .buttons {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .buttons button {
+        margin: 0 20px;
+        padding: 5px 50px;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        color: #fff;
+        border-radius: 100px;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .buttons button.clear-canvas {
+        background-color: #ffb30f;
+    }
+
+    .buttons button.save-img {
+        background-color: #ff6e2b;
+    }
+
+    .buttons button:hover {
+        transform: scale(1.05);
+    }
+
+    .clear-canvas:hover {
+        background-color: #52606D;
+    }
+
+    .save-img:hover {
+        background-color: #357EC7;
+    }
+
+</style>
+</head>
+<body>
+
+<div id="grid-wrapper">
+    <div id="grid-container">
+    </div>
+</div>
+
+<div id="canvas-container">
+    <canvas id="myCanvas" width="500" height="600"></canvas>
+
+    <div class="buttons">
+        <button class="clear-canvas">Clear Canvas</button>
+        <button class="save-img">Save Image</button>
+    </div>
+</div>
+</div>
+
+<script>
+    const canvas = document.getElementById('myCanvas');
+    const clearCanvas = document.querySelector(".clear-canvas");
+    const saveImg = document.querySelector(".save-img");
+    const ctx = canvas.getContext('2d');
+
+    function drawImage(image, x, y, width, height) {
+        ctx.drawImage(image, x, y, width, height);
+    }
+
+    function dragStart(event) {
+        event.dataTransfer.setData('text/plain', event.target.alt);
+    }
+
+    function dragEnd(event) {
+        event.preventDefault();
+    }
+
+    function drop(event) {
+        event.preventDefault();
+        const imageName = event.dataTransfer.getData('text/plain');
+        const image = document.querySelector(`img[alt="${imageName}"]`);
+        const canvasRect = canvas.getBoundingClientRect();
+        const offsetX = event.clientX - canvasRect.left - image.width / 2; 
+        const offsetY = event.clientY - canvasRect.top - image.height / 2; 
+        const scaleFactor = 1.5; 
+        drawImage(image, offsetX, offsetY, image.width * scaleFactor, image.height * scaleFactor);
+    }
+
+
+    function saveCanvasAsJPG() {
+        const link = document.createElement('a');
+        link.download = 'my_postcard.jpg';
+        link.href = canvas.toDataURL('image/jpeg');
+        link.click();
+    }
+
+    const imageUrls = [
+        "flower1.png", "flower2.png", "flower3.png", "flower4.png",
+        "flower5.png", "flower6.png", "flower7.png", "flower8.png",
+        "flower9.png", "flower10.png", "flower11.png", "flower12.png",
+        "flower13.png", "flower14.png", "flower15.png", "flower16.png"
+    ];
+
+    function addImagesToGrid() {
+        const gridContainer = document.getElementById('grid-container');
+        for (let i = 0; i < 16; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'grid-cell';
+            const image = document.createElement('img');
+            image.src = imageUrls[i];
+            image.alt = `Image ${i+1}`;
+            image.className = 'grid-image draggable'; 
+            image.draggable = true; 
+            image.addEventListener('dragstart', dragStart);
+            image.addEventListener('dragend', dragEnd);
+            cell.appendChild(image);
+            gridContainer.appendChild(cell);
+        }
+    }
+
+    window.onload = addImagesToGrid;
+
+    clearCanvas.addEventListener("click", () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // 캔버스 전체를 지우는 대신, 배경만 초기화
+    });
+
+
+    canvas.addEventListener('dragover', function(event) {
+        event.preventDefault();
+    });
+    canvas.addEventListener('drop', drop);
+
+    const saveButton = document.getElementById('saveButton');
+    saveButton.addEventListener('click', saveCanvasAsJPG);
+
+
+</script>
+
+</body>
+</html>
