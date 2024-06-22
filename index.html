@@ -538,7 +538,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
     setDish();
 });
 
-//211115 수정 - 모바일에서 아이콘 드래그시 화면 스크롤 잠금
 $(".main-icon").on('touchmove', function(e) {
     $('body').addClass('scrollOff').on('scroll touchmove mousewheel', function (e) {
         e.preventDefault();
